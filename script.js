@@ -87,9 +87,15 @@ let hoveredAmenityId = null
 let centerOnAmenityId = null
 
 const mapContainer = document.getElementById('campus-map')
+if (!mapContainer) throw new Error('Custom Image Mapbox: #campus-map not found')
 const mapImageWrapper = document.createElement('div')
 mapImageWrapper.className = 'map-image-wrapper'
 mapContainer.appendChild(mapImageWrapper)
+// Layer above map so markers always receive clicks (pointer-events: none on layer, auto on markers)
+const markerLayer = document.createElement('div')
+markerLayer.className = 'map-marker-layer'
+markerLayer.setAttribute('aria-hidden', 'true')
+mapContainer.appendChild(markerLayer)
 
 const mapImage = document.createElement('img')
 mapImage.src = 'images/campus/campus-map.png'
@@ -290,8 +296,7 @@ function centerMapOnAmenity(amenity) {
 
 // Render amenity markers
 function renderAmenityMarkers() {
-  // Remove existing markers
-  const existingMarkers = mapContainer.querySelectorAll('.amenity-marker')
+  const existingMarkers = markerLayer.querySelectorAll('.amenity-marker')
   existingMarkers.forEach(m => m.remove())
   
   if (!imageLoaded || !imageDimensions || scale <= 0) return
@@ -326,6 +331,7 @@ function renderAmenityMarkers() {
     
     const marker = document.createElement('div')
     marker.className = 'amenity-marker'
+    marker.setAttribute('data-amenity-id', amenity.id)
     if (hoveredAmenityId === amenity.id) marker.classList.add('hovered')
     marker.style.left = `${markerX}px`
     marker.style.top = `${markerY}px`
@@ -364,65 +370,85 @@ function renderAmenityMarkers() {
       }
     })
     
-    marker.addEventListener('click', (e) => {
+    marker.addEventListener('click', function (e) {
+      e.preventDefault()
       e.stopPropagation()
       handleAmenityClick(amenity.id, true)
     })
     
     marker.addEventListener('touchstart', (e) => {
+      e.stopPropagation()
       if (e.touches.length === 1 && e.touches[0]) {
         touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
       }
-    })
+    }, { passive: true })
     
     marker.addEventListener('touchend', (e) => {
-      if (e.changedTouches.length === 1 && touchStartPos && e.changedTouches[0] && !isDragging) {
+      if (e.changedTouches.length === 1 && touchStartPos && e.changedTouches[0]) {
         const touchEnd = e.changedTouches[0]
         const dx = Math.abs(touchEnd.clientX - touchStartPos.x)
         const dy = Math.abs(touchEnd.clientY - touchStartPos.y)
         if (dx < 10 && dy < 10) {
+          e.preventDefault()
           e.stopPropagation()
           handleAmenityClick(amenity.id, true)
         }
       }
       touchStartPos = null
-    })
+    }, { passive: false })
     
-    mapContainer.appendChild(marker)
+    markerLayer.appendChild(marker)
   })
+}
+
+// Scroll to element: set hash so browser scrolls to #id (most reliable).
+function scrollToId(id) {
+  var el = document.getElementById(id)
+  if (!el) return
+  el.scrollIntoView({ behavior: 'smooth', block: id === 'map-container' ? 'start' : 'center' })
+  window.location.hash = id
 }
 
 // Handle amenity click
 function handleAmenityClick(amenityId, fromMap = false) {
-  if (fromMap && isMobile) {
-    const amenityElement = document.getElementById(`amenity-${amenityId}`)
-    if (amenityElement) {
-      amenityElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      hoveredAmenityId = amenityId
+  if (fromMap) {
+    // If clicked from map: scroll down to the list item (same as Arc).
+    hoveredAmenityId = amenityId
+    renderAmenityMarkers()
+    renderAmenitiesGrid()
+
+    setTimeout(function () {
+      scrollToId('amenity-' + amenityId)
+    }, 50)
+
+    setTimeout(() => {
+      hoveredAmenityId = null
       renderAmenityMarkers()
       renderAmenitiesGrid()
-      setTimeout(() => {
-        hoveredAmenityId = null
-        renderAmenityMarkers()
-        renderAmenitiesGrid()
-      }, 2000)
-    }
+    }, isMobile ? 6000 : 2000)
   } else {
-    const mapRef = document.getElementById('map-container')
+    // If clicked from list: scroll up to the map (same as Arc).
+    var mapRef = document.getElementById('map-container')
     if (mapRef) {
-      mapRef.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      scrollToId('map-container')
+      
+      // Highlight the corresponding amenity marker on the map
+      // On mobile, keep it hovered longer so the label is visible
       hoveredAmenityId = amenityId
       renderAmenityMarkers()
       renderAmenitiesGrid()
       
+      // On mobile, center the map on the clicked amenity
       if (isMobile) {
         centerOnAmenityId = amenityId
         const amenity = campusAmenities.find(a => a.id === amenityId)
         if (amenity) {
+          // Set zoom to 1 (maximum on mobile) if not already, then center after zoom updates
           if (zoom < 1) {
             zoom = 1
             updateScale()
             updateZoomButtons()
+            // Wait for zoom to update before centering
             setTimeout(() => {
               centerMapOnAmenity(amenity)
               setTimeout(() => { centerOnAmenityId = null }, 1000)
@@ -434,12 +460,14 @@ function handleAmenityClick(amenityId, fromMap = false) {
             }, 300)
           }
         }
+        // On mobile, keep the bubble in hover state longer (6 seconds) so label stays visible
         setTimeout(() => {
           hoveredAmenityId = null
           renderAmenityMarkers()
           renderAmenitiesGrid()
         }, 6000)
       } else {
+        // Desktop: clear highlight after shorter delay
         setTimeout(() => {
           hoveredAmenityId = null
           renderAmenityMarkers()
@@ -468,18 +496,6 @@ function renderAmenitiesGrid() {
     const card = document.createElement('div')
     card.id = `amenity-${amenity.id}`
     card.className = 'amenity-card'
-    if (index < campusAmenities.length - 1) {
-      const isLastInRow3 = (index + 1) % 3 === 0
-      const isLastInRow4 = (index + 1) % 4 === 0
-      if (!isLastInRow3 || !isLastInRow4) {
-        const rule = document.createElement('div')
-        rule.className = 'amenity-vertical-rule'
-        if (isMobile) rule.style.display = 'none'
-        else if (isLastInRow3) rule.classList.add('hide-md')
-        if (isLastInRow4) rule.classList.add('hide-lg')
-        card.appendChild(rule)
-      }
-    }
     
     const hoverBg = document.createElement('div')
     hoverBg.className = 'amenity-hover-bg'
@@ -526,8 +542,11 @@ function renderAmenitiesGrid() {
       card.addEventListener('mouseenter', () => handleAmenityHover(amenity.id))
       card.addEventListener('mouseleave', () => handleAmenityHover(null))
     }
-    card.addEventListener('click', () => handleAmenityClick(amenity.id))
-    
+    card.addEventListener('click', function (e) {
+      e.preventDefault()
+      handleAmenityClick(amenity.id, false)
+    })
+    card.style.cursor = 'pointer'
     grid.appendChild(card)
   })
 }
@@ -545,7 +564,47 @@ window.addEventListener('resize', () => {
   }
 })
 
-// Initialize
-updateScale()
-updateZoomButtons()
-renderAmenitiesGrid()
+// Delegated click handlers (survive re-renders). Use capture on map so marker click is handled before map pan.
+function setupDelegatedClickHandlers() {
+  const mapEl = document.getElementById('campus-map')
+  if (mapEl) {
+    mapEl.addEventListener('click', (e) => {
+      const marker = e.target.closest('.amenity-marker')
+      if (!marker) return
+      const id = marker.getAttribute('data-amenity-id')
+      if (id) {
+        e.preventDefault()
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        handleAmenityClick(id, true)
+      }
+    }, true)
+  }
+  const gridEl = document.getElementById('amenities-grid')
+  if (gridEl) {
+    gridEl.addEventListener('click', (e) => {
+      const card = e.target.closest('.amenity-card')
+      if (!card || !card.id || !card.id.startsWith('amenity-')) return
+      const id = card.id.replace('amenity-', '')
+      if (!id) return
+      e.preventDefault()
+      e.stopPropagation()
+      handleAmenityClick(id, false)
+    }, true)
+  }
+}
+
+// Initialize when DOM is ready
+function init() {
+  setupDelegatedClickHandlers()
+  updateScale()
+  updateZoomButtons()
+  renderAmenitiesGrid()
+}
+
+// Wait for DOM to be ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init)
+} else {
+  init()
+}

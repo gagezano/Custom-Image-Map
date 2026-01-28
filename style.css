@@ -1,7 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&display=swap');
+/* GT Flexa Font - Using fallback fonts for standalone example */
+/* Extended Light */
+@font-face {
+  font-family: 'GT Flexa';
+  src:
+    url('../../public/fonts/GT-Flexa-Extended-Light.woff2') format('woff2'),
+    url('../../public/fonts/GT-Flexa-Extended-Light.woff') format('woff');
+  font-weight: 300;
+  font-stretch: expanded;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Standard Regular */
+@font-face {
+  font-family: 'GT Flexa';
+  src:
+    url('../../public/fonts/GT-Flexa-Standard-Regular.woff2') format('woff2'),
+    url('../../public/fonts/GT-Flexa-Standard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-stretch: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Extended Bold */
+@font-face {
+  font-family: 'GT Flexa';
+  src:
+    url('../../public/fonts/GT-Flexa-Extended-Bold.woff2') format('woff2'),
+    url('../../public/fonts/GT-Flexa-Extended-Bold.woff') format('woff');
+  font-weight: 700;
+  font-stretch: expanded;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  font-family: 'SF Pro Display', 'SF Pro Text', 'SF Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'GT Flexa', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #000;
   color: #fff;
   font-size: clamp(14px, 1.5vw, 16px);
@@ -11,6 +46,13 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  /* Ensure document is the scroll container so scrollIntoView / window.scrollTo work */
+  overflow-y: scroll;
+}
+
 body {
   margin: 0;
   background: #000;
@@ -18,22 +60,54 @@ body {
 }
 
 .back-link {
-  position: sticky;
-  top: 0;
-  padding: 0.75rem 1.5rem;
-  background: rgba(0, 0, 0, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
   z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  max-height: 42px;
+  padding: 0.55rem 0.85rem;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease;
+}
+
+.back-link:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .back-link a {
   color: #fff;
   text-decoration: none;
-  text-transform: uppercase;
-  font-size: 0.75rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+}
+
+.back-link__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.back-link__arrow svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.back-link__logo {
+  height: 1.1rem;
+  width: auto;
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 .campus-tour-section {
@@ -43,6 +117,23 @@ body {
   padding-right: 2rem;
   margin-bottom: clamp(4rem, 7vw, 10rem);
   padding-top: clamp(6rem, 12vw, 8rem);
+  min-height: 100vh; /* Ensure section has enough height to scroll */
+}
+
+@media (max-width: 767px) {
+  .campus-tour-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .campus-tour-section .max-w-7xl,
+  .campus-tour-section #map-container,
+  .campus-tour-section #amenities-grid {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .max-w-7xl {
@@ -72,17 +163,22 @@ body {
 }
 
 .section-eyebrow {
+  font-family: 'GT Flexa', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: clamp(0.875rem, 1.5vw, 1.125rem);
   font-weight: 700;
+  font-stretch: expanded;
   line-height: 1.5;
   text-transform: uppercase;
   color: #fff;
 }
 
 .section-header {
+  font-family: 'GT Flexa', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 300;
+  font-stretch: expanded;
   line-height: 1.1;
+  letter-spacing: -0.05em;
   overflow: visible;
   color: #fff;
 }
@@ -98,6 +194,21 @@ body {
   height: clamp(500px, 70vh, 800px);
   min-height: clamp(500px, 70vh, 800px);
   touch-action: pan-x pan-y pinch-zoom;
+}
+
+/* Stronger, more visible gradient on mobile so background is easier to see */
+@media (max-width: 767px) {
+  .campus-map-container {
+    background: radial-gradient(
+      ellipse 140% 100% at 50% 45%,
+      rgba(55, 42, 65, 1) 0%,
+      rgba(38, 30, 48, 1) 35%,
+      rgba(28, 22, 35, 1) 60%,
+      #19141E 85%,
+      #0f0d12 100%
+    );
+    background-color: #19141E;
+  }
 }
 
 .map-image-wrapper {
@@ -122,6 +233,18 @@ body {
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+}
+
+/* Layer above map so markers receive clicks; layer itself passes through to map */
+.map-marker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.map-marker-layer .amenity-marker {
+  pointer-events: auto;
 }
 
 .amenity-marker {
@@ -186,11 +309,29 @@ body {
 .zoom-controls {
   position: absolute;
   top: 1rem;
-  left: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 50;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Desktop: keep vertical stack, top-left for consistency with map UI */
+@media (min-width: 768px) {
+  .zoom-controls {
+    left: 1rem;
+    transform: none;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .zoom-button {
@@ -223,12 +364,13 @@ body {
   pointer-events: none;
 }
 
-/* Amenities Grid */
+/* Amenities Grid - top-aligned, centered on mobile */
 .amenities-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
   row-gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  align-items: start;
 }
 
 @media (min-width: 768px) {
@@ -251,6 +393,17 @@ body {
   padding-bottom: 18px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding-right: 1.5rem; /* pr-6 on mobile */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .amenity-card {
+    padding-right: 2px;
+    padding-left: 1.5rem; /* pl-6 on desktop */
+  }
 }
 
 .amenity-card:hover {
@@ -287,6 +440,12 @@ body {
   margin-bottom: 1rem;
 }
 
+@media (min-width: 768px) {
+  .amenity-header {
+    gap: 1rem; /* gap-4 = 1rem */
+  }
+}
+
 .amenity-icon-circle {
   flex-shrink: 0;
   width: 48px;
@@ -305,8 +464,10 @@ body {
 }
 
 .amenity-title {
+  font-family: 'GT Flexa', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: clamp(0.75rem, 1.2vw, 0.875rem);
   font-weight: 400;
+  font-stretch: normal;
   line-height: 1.4;
   text-transform: uppercase;
   text-align: left;
@@ -320,6 +481,12 @@ body {
 @media (min-width: 768px) {
   .amenity-title {
     max-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .amenity-title {
+    font-size: 1rem; /* 16px on mobile */
   }
 }
 
@@ -344,9 +511,11 @@ body {
 }
 
 .amenity-description {
+  font-family: 'GT Flexa', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: clamp(0.875rem, 1.2vw, 1rem);
   font-weight: 400;
   line-height: 1.5;
+  letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   text-align: left;
