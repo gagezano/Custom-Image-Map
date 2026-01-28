@@ -14,17 +14,18 @@ body {
 .back-link {
   position: sticky;
   top: 0;
-  background: rgba(5, 5, 5, 0.95);
   padding: 0.75rem 1.5rem;
+  background: rgba(5, 5, 5, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
 }
 
 .back-link a {
   color: #fff;
-  text-decoration: none;
   text-transform: uppercase;
+  text-decoration: none;
   font-size: 0.75rem;
+  letter-spacing: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -38,19 +39,45 @@ body {
   padding: 2rem;
 }
 
-.mapbox__map {
-  flex: 1;
-  min-height: 320px;
-  border-radius: 24px;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.4), transparent 55%),
-    radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.2), transparent 60%),
-    linear-gradient(135deg, #111, #333);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-transform: uppercase;
-  font-size: 1rem;
+.mapbox__stage {
+  position: relative;
+  min-height: 70vh;
+  border-radius: 20px;
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+}
+
+.map-box-title {
+  position: absolute;
+  top: 1.25rem;
+  right: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  z-index: 2;
+}
+
+.map-slides {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.map-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+.map-slide.active {
+  opacity: 1;
 }
 
 .mapbox__details {
@@ -82,20 +109,8 @@ body {
   margin-top: 0;
 }
 
-.detail-card ul {
-  padding-left: 1.2rem;
-}
-
-.detail-card li {
-  margin-bottom: 0.45rem;
-}
-
 @media (max-width: 600px) {
   .mapbox {
-    padding: 1rem;
-  }
-
-  .detail-card {
     padding: 1rem;
   }
 }
