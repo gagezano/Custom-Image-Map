@@ -2,115 +2,397 @@
 
 :root {
   font-family: 'SF Pro Display', 'SF Pro Text', 'SF Sans', 'Helvetica Neue', sans-serif;
-  background: #050505;
+  background: #000;
   color: #fff;
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #050505;
+  background: #000;
+  font-size: 1rem;
 }
 
 .back-link {
   position: sticky;
   top: 0;
   padding: 0.75rem 1.5rem;
-  background: rgba(5, 5, 5, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
 }
 
 .back-link a {
   color: #fff;
-  text-transform: uppercase;
   text-decoration: none;
+  text-transform: uppercase;
   font-size: 0.75rem;
-  letter-spacing: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-.mapbox {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-.mapbox__stage {
+.campus-tour-section {
   position: relative;
-  min-height: 70vh;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  padding-bottom: 3rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-bottom: clamp(4rem, 7vw, 10rem);
+  padding-top: clamp(6rem, 12vw, 8rem);
 }
 
-.map-box-title {
-  position: absolute;
-  top: 1.25rem;
-  right: 2rem;
+.max-w-7xl {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mb-12 {
+  margin-bottom: 3rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-16 {
+  margin-bottom: 4rem;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.section-eyebrow {
+  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+  font-weight: 700;
+  line-height: 1.5;
   text-transform: uppercase;
-  letter-spacing: 0;
-  display: flex;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.65);
-  z-index: 2;
+  color: #fff;
 }
 
-.map-slides {
-  position: absolute;
+.section-header {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 300;
+  line-height: 1.1;
+  overflow: visible;
+  color: #fff;
+}
+
+/* Campus Map Styles */
+.campus-map-container {
+  position: relative;
   width: 100%;
-  height: 100%;
+  overflow: hidden;
+  background-color: #19141E;
+  padding: 0;
+  border-radius: 0;
+  height: clamp(500px, 70vh, 800px);
+  min-height: clamp(500px, 70vh, 800px);
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
-.map-slide {
+.map-image-wrapper {
   position: absolute;
   inset: 0;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-  background-size: cover;
-  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
 }
 
-.map-slide.active {
+.map-image-wrapper.dragging {
+  cursor: grabbing;
+}
+
+.map-image-wrapper img {
+  display: block;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.amenity-marker {
+  position: absolute;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: all 0.1s;
+  pointer-events: auto;
+  z-index: 40;
+}
+
+.amenity-marker.hovered {
+  z-index: 99999;
+}
+
+.amenity-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+  transform: scale(1);
+}
+
+.amenity-bubble.hovered {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.amenity-bubble img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.amenity-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.amenity-tooltip.visible {
   opacity: 1;
 }
 
-.mapbox__details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-}
-
-.detail-card {
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.detail-card-icon {
+.zoom-controls {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 50;
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zoom-button {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 2rem 0;
 }
 
-.detail-card-icon img {
-  width: clamp(60px, 15vw, 120px);
-  filter: invert(1);
+.zoom-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
-.detail-card h2,
-.detail-card h3 {
-  margin-top: 0;
+.zoom-button:disabled {
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-@media (max-width: 600px) {
-  .mapbox {
-    padding: 1rem;
+.zoom-button img {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+/* Amenities Grid */
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  row-gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+@media (min-width: 768px) {
+  .amenities-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
+}
+
+@media (min-width: 1024px) {
+  .amenities-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.amenity-card {
+  position: relative;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 8px;
+  padding-bottom: 18px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.amenity-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.amenity-card:hover .amenity-hover-bg {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.amenity-hover-bg {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  background-color: transparent;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.amenity-content {
+  position: relative;
+  z-index: 1;
+}
+
+.amenity-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.amenity-icon-circle {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amenity-icon-circle img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.amenity-title {
+  font-size: clamp(0.75rem, 1.2vw, 0.875rem);
+  font-weight: 400;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-align: left;
+  line-height: 1.2em;
+  min-height: 2.4em;
+  word-break: break-word;
+  flex: 1;
+  max-width: 140px;
+}
+
+@media (min-width: 768px) {
+  .amenity-title {
+    max-width: 100px;
+  }
+}
+
+.amenity-image-container {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  background-color: transparent;
+}
+
+@media (max-width: 768px) {
+  .amenity-image-container {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.amenity-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.amenity-description {
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  text-align: left;
+  margin-top: 0;
+  padding-top: 0.7rem;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.amenity-vertical-rule {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: white;
+  z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .amenity-vertical-rule {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .amenity-vertical-rule.hide-md {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .amenity-vertical-rule.hide-lg {
+    display: none;
+  }
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.w-full {
+  width: 100%;
 }
