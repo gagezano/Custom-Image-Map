@@ -72,6 +72,17 @@ body {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.detail-card-icon {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.detail-card-icon img {
+  width: clamp(60px, 15vw, 120px);
+  filter: invert(1);
+}
+
 .detail-card h2,
 .detail-card h3 {
   margin-top: 0;
